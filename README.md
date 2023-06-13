@@ -11,10 +11,9 @@ go 1.20
 3bit = 0/1/2/3/4/5/6/7 version
 
 # usage
-af2f -a target.jpg bigfile.mp4
-af2f -s bigfile.mp4 target.jpg
-
-af2f -k password -a target.jpg bigfile.mp4
+af2f append -f bigfile.mp4 -a target.jpg -k password
+af2f split -f bigfile.mp4 -o target.jpg -k password
+af2f check -f bigfile.mp4
 
 # fake code
 append:
