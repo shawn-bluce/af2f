@@ -15,7 +15,9 @@ func fileNotExists(filename string) bool {
 		return true
 	}
 	isDir := info.IsDir()
-	log.Debugf("file: %s is exists, but it's dir", filename)
+	if isDir {
+		log.Debugf("file: %s is exists, but it's dir", filename)
+	}
 	return isDir
 }
 

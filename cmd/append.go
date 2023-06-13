@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"af2f/binary_utils"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"os"
@@ -38,7 +38,8 @@ var appendCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Println("append called")
+		data := binary_utils.ReadBinaryFile(appendFile)
+		binary_utils.WriteBinaryFile(bigFile, data)
 	},
 }
 
