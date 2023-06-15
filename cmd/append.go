@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"af2f/binary_utils"
+	"af2f/common_utils"
+	"encoding/binary"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"os"
@@ -38,8 +40,19 @@ var appendCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		data := binary_utils.ReadBinaryFile(appendFile)
-		binary_utils.AppendBinaryFile(bigFile, data)
+		data, _ := binary_utils.ReadBinaryFile(appendFile)
+		_, offsetValue := binary_utils.ReadBinaryFile(bigFile)
+		version := common_utils.GetManifest().Version
+
+		versionByteArray := make([]byte, 32)
+		binary.LittleEndian.PutUint64(versionByteArray, uint64(version))
+
+		offsetByteArray := make([]byte, 32)
+		binary.LittleEndian.PutUint64(offsetByteArray, uint64(offsetValue))
+
+		binary_utils.AppendBinaryFile(bigFile, data)             // append file
+		binary_utils.AppendBinaryFile(bigFile, offsetByteArray)  // append offset value
+		binary_utils.AppendBinaryFile(bigFile, versionByteArray) // append version
 	},
 }
 

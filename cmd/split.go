@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"af2f/binary_utils"
+	"encoding/binary"
 	"github.com/charmbracelet/log"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -36,6 +39,32 @@ var splitCmd = &cobra.Command{
 			log.Errorf("Do not pass the params validate")
 			os.Exit(1)
 		}
+
+		fp, _ := os.OpenFile(bigFile, os.O_RDONLY, 0644)
+		defer fp.Close()
+
+		_, sumSize := binary_utils.ReadBinaryFile(bigFile)
+
+		fp.Seek(-32, io.SeekEnd)
+		buffer := make([]byte, 32)
+		fp.Read(buffer)
+		version := binary.LittleEndian.Uint64(buffer)
+		log.Debugf("read version is: %d", version)
+
+		fp.Seek(-64, io.SeekCurrent)
+		fp.Read(buffer)
+		offset := binary.LittleEndian.Uint64(buffer)
+		log.Debugf("read offset is: %d", offset)
+
+		targetSize := uint64(sumSize) - offset - 32 - 32
+		realOffset := uint64(sumSize) - targetSize - 32 - 32
+		fp.Seek(int64(realOffset), io.SeekStart)
+		outputData := make([]byte, targetSize)
+		fp.Read(outputData)
+
+		log.Debugf("will write to %s", outputFile)
+		binary_utils.WriteBinaryFile(outputFile, outputData)
+		log.Debugf("write done.")
 
 	},
 }

@@ -6,6 +6,7 @@ package main
 
 import (
 	"af2f/cmd"
+	"af2f/common_utils"
 	"github.com/charmbracelet/log"
 	"os"
 )
@@ -15,6 +16,7 @@ func main() {
 	if debug {
 		log.SetLevel(log.DebugLevel)
 		log.Debug("OS ENV AF2F_DEBUG=1, set log level = debug")
+		log.Debugf("Now Version is %d", common_utils.GetManifest().Version)
 	}
 	log.Debugf("Pre cmd.Execute()")
 	cmd.Execute()

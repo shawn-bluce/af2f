@@ -4,7 +4,7 @@ Append file to file
 go 1.20
 
 # data struct
-`[source_file][hidden_file][40bit -> offset][3bit -> version]`
+`[source_file][hidden_file][128byte -> offset][1128byte -> version]`
 
 40bit = 128G source file
 
