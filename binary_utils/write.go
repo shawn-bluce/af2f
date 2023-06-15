@@ -3,36 +3,24 @@ package binary_utils
 import (
 	"fmt"
 	"github.com/charmbracelet/log"
-	"io"
 	"io/ioutil"
 	"os"
 )
 
-func WriteBinaryFile(filename string, data []byte) {
-	fp, err := os.Open(filename)
-	if err != nil {
-		fmt.Println(err)
-	}
+func AppendBinaryFile(filename string, data []byte) {
+	fileContent, _ := ioutil.ReadFile(filename)
+	//bigFileSize := len(fileContent)
+	fileSize := float32(len(fileContent)) / 1024.0 / 1024.0
+	log.Debugf("file: %s length is %.2fM -> %d", filename, fileSize, len(fileContent))
+
+	fp, _ := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	defer fp.Close()
 
-	bigFileContent, err := ioutil.ReadFile(filename)
-	bigFileSize := len(bigFileContent)
-	fileSize := float32(len(bigFileContent)) / 1024.0 / 1024.0
-	log.Debugf("file: %s length is %.2fM", filename, fileSize)
+	fp.Seek(0, 2)
 
-	fp.Seek(int64(bigFileSize), 1)
-	fp.Write(data)
+	res, _ := fp.Write(data)
 
-	buff := make([]byte, 55) // 55=该文本的长度
-
-	for {
-		lens, err := fp.Read(buff)
-		if err == io.EOF || lens < 0 {
-			break
-		}
-	}
-	fmt.Println("--------")
-	fmt.Print(string(buff))
-	fmt.Println("--------")
-
+	fmt.Println("================")
+	fmt.Println(res)
+	fmt.Println("================")
 }

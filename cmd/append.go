@@ -39,7 +39,7 @@ var appendCmd = &cobra.Command{
 		}
 
 		data := binary_utils.ReadBinaryFile(appendFile)
-		binary_utils.WriteBinaryFile(bigFile, data)
+		binary_utils.AppendBinaryFile(bigFile, data)
 	},
 }
 

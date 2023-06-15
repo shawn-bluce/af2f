@@ -11,11 +11,10 @@ import (
 )
 
 func main() {
-	logLevel := os.Getenv("AF2F_LOG_LEVEL")
-	if logLevel == "debug" {
+	debug := os.Getenv("AF2F_DEBUG") == "1"
+	if debug {
 		log.SetLevel(log.DebugLevel)
-	} else {
-		log.SetLevel(log.WarnLevel)
+		log.Debug("OS ENV AF2F_DEBUG=1, set log level = debug")
 	}
 	log.Debugf("Pre cmd.Execute()")
 	cmd.Execute()
