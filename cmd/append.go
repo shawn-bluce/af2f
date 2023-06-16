@@ -40,18 +40,30 @@ var appendCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		data, _ := binary_utils.ReadBinaryFile(appendFile)
-		_, offsetValue := binary_utils.ReadBinaryFile(bigFile)
+		_, bigfileSize := binary_utils.ReadBinaryFile(bigFile)
+
+		appendData, _ := binary_utils.ReadBinaryFile(appendFile)
+		log.Infof("append: %s, file-size: %d", appendFile, len(appendData))
+		binary_utils.AppendBinaryFile(bigFile, appendData) // append file
+
+		// encryption algorithm
+		algorithmId := common_utils.GetAlgorithmIdByName()
+		algorithmByteArray := make([]byte, 8)
+		binary.LittleEndian.PutUint64(algorithmByteArray, uint64(algorithmId))
+		log.Infof("append: encryption algorithm, 8bytes")
+		binary_utils.AppendBinaryFile(bigFile, algorithmByteArray) // append offset value
+
+		// offset
+		bigfileSizeByteArray := make([]byte, 8)
+		binary.LittleEndian.PutUint64(bigfileSizeByteArray, uint64(bigfileSize))
+		log.Infof("append: bigfileSize, 8bytes, value is %d", bigfileSize)
+		binary_utils.AppendBinaryFile(bigFile, bigfileSizeByteArray) // append offset value
+
+		// version
 		version := common_utils.GetManifest().Version
-
-		versionByteArray := make([]byte, 32)
+		versionByteArray := make([]byte, 8)
 		binary.LittleEndian.PutUint64(versionByteArray, uint64(version))
-
-		offsetByteArray := make([]byte, 32)
-		binary.LittleEndian.PutUint64(offsetByteArray, uint64(offsetValue))
-
-		binary_utils.AppendBinaryFile(bigFile, data)             // append file
-		binary_utils.AppendBinaryFile(bigFile, offsetByteArray)  // append offset value
+		log.Infof("append: version, 8bytes, value is %d", version)
 		binary_utils.AppendBinaryFile(bigFile, versionByteArray) // append version
 	},
 }

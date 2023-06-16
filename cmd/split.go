@@ -45,21 +45,32 @@ var splitCmd = &cobra.Command{
 
 		_, sumSize := binary_utils.ReadBinaryFile(bigFile)
 
-		fp.Seek(-32, io.SeekEnd)
-		buffer := make([]byte, 32)
+		// read version
+		fp.Seek(-8, io.SeekEnd)
+		buffer := make([]byte, 8)
 		fp.Read(buffer)
 		version := binary.LittleEndian.Uint64(buffer)
 		log.Debugf("read version is: %d", version)
 
-		fp.Seek(-64, io.SeekCurrent)
+		// read sourceBigFileSize
+		fp.Seek(-16, io.SeekEnd)
+		buffer = make([]byte, 8)
 		fp.Read(buffer)
-		offset := binary.LittleEndian.Uint64(buffer)
-		log.Debugf("read offset is: %d", offset)
+		sourceBigFileSize := binary.LittleEndian.Uint64(buffer)
+		log.Debugf("read sourceBigFileSize is: %d", sourceBigFileSize)
 
-		targetSize := uint64(sumSize) - offset - 32 - 32
-		realOffset := uint64(sumSize) - targetSize - 32 - 32
-		fp.Seek(int64(realOffset), io.SeekStart)
-		outputData := make([]byte, targetSize)
+		// read encryption algorithm
+		fp.Seek(-24, io.SeekEnd)
+		buffer = make([]byte, 8)
+		fp.Read(buffer)
+		algorithmId := binary.LittleEndian.Uint64(buffer)
+		log.Debugf("read algorithmId is: %d", algorithmId)
+
+		hiddenFileSize := uint64(sumSize) - sourceBigFileSize - 8 - 8 - 8
+
+		fp.Seek(int64(hiddenFileSize)*-1-8-8-8, io.SeekEnd)
+		log.Warnf("hiddenFileSize: %d", hiddenFileSize)
+		outputData := make([]byte, uint64(hiddenFileSize))
 		fp.Read(outputData)
 
 		log.Debugf("will write to %s", outputFile)

@@ -2,6 +2,7 @@ package binary_utils
 
 import (
 	"github.com/charmbracelet/log"
+	"io"
 	"io/ioutil"
 	"os"
 )
@@ -9,25 +10,20 @@ import (
 func ReadBinaryFile(filename string) ([]byte, int) {
 
 	content, _ := ioutil.ReadFile(filename)
-	fileSize := float32(len(content)) / 1024.0 / 1024.0
-	log.Debugf("file: %s length is %.2fM -> %d", filename, fileSize, len(content))
+
+	fileSizeWithMb := float64(len(content)) / 1024.0 / 1024.0
+	log.Debugf("Reading file: %s length is %.2fM -> %d %d bytes", filename, fileSizeWithMb, len(content))
 
 	return content, len(content)
 }
 
 func AppendBinaryFile(filename string, data []byte) {
-	fileContent, _ := ioutil.ReadFile(filename)
-	//bigFileSize := len(fileContent)
-	fileSize := float32(len(fileContent)) / 1024.0 / 1024.0
-	log.Debugf("file: %s length is %.2fM -> %d", filename, fileSize, len(fileContent))
-
 	fp, _ := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	defer fp.Close()
 
-	fp.Seek(0, 2)
-
-	fp.Write(data)
-
+	fp.Seek(0, io.SeekEnd)
+	res, _ := fp.Write(data)
+	log.Warnf("final file size: %d", res)
 }
 
 func WriteBinaryFile(filename string, data []byte) {

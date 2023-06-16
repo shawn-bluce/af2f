@@ -15,8 +15,8 @@ func main() {
 	debug := os.Getenv("AF2F_DEBUG") == "1"
 	if debug {
 		log.SetLevel(log.DebugLevel)
-		log.Debug("OS ENV AF2F_DEBUG=1, set log level = debug")
-		log.Debugf("Now Version is %d", common_utils.GetManifest().Version)
+		log.Infof("OS ENV AF2F_DEBUG=1, set logLevel=debug")
+		log.Infof("Now Version is %d", common_utils.GetManifest().Version)
 	}
 	log.Debugf("Pre cmd.Execute()")
 	cmd.Execute()
