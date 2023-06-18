@@ -3,6 +3,7 @@ package cmd
 import (
 	"af2f/binary_utils"
 	"af2f/common_utils"
+	"af2f/encrypt_tool"
 	"encoding/binary"
 	"github.com/charmbracelet/log"
 	"io"
@@ -11,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func validateSplitArgs(file string, output string, password string, algorithm string) bool {
+func validateSplitArgs(file string, output string, password string) bool {
 	validated := true
 	if fileNotExists(file) {
 		log.Errorf("-f file: %s is not exists", file)
@@ -26,18 +27,6 @@ func validateSplitArgs(file string, output string, password string, algorithm st
 		validated = false
 	}
 
-	algorithmIdFound := false
-	for _, id := range common_utils.GetAlgorithmMap() {
-		if algorithm == string(rune(id)) {
-			algorithmIdFound = true
-			break
-		}
-	}
-	if !algorithmIdFound {
-		log.Errorf("algorithm id: %s are not support", algorithm)
-		validated = false
-	}
-
 	return validated
 }
 
@@ -47,9 +36,8 @@ var splitCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		bigFile, _ := cmd.Flags().GetString("file")
 		outputFile, _ := cmd.Flags().GetString("output")
-		encryption, _ := cmd.Flags().GetString("encryption")
 		password, _ := cmd.Flags().GetString("password")
-		if !validateSplitArgs(bigFile, outputFile, password, encryption) {
+		if !validateSplitArgs(bigFile, outputFile, password) {
 			log.Errorf("Do not pass the params validate")
 			os.Exit(1)
 		}
@@ -73,11 +61,12 @@ var splitCmd = &cobra.Command{
 		sourceBigFileSize := binary.LittleEndian.Uint64(buffer)
 		log.Debugf("read sourceBigFileSize is: %d", sourceBigFileSize)
 
-		// read encryption algorithm
+		// read encryptionAlgorithm algorithm
 		fp.Seek(-24, io.SeekEnd)
 		buffer = make([]byte, 8)
 		fp.Read(buffer)
 		algorithmId := binary.LittleEndian.Uint64(buffer)
+		_, algorithmName := common_utils.GetAlgorithmNameById(int(algorithmId))
 		log.Debugf("read algorithmId is: %d", algorithmId)
 
 		hiddenFileSize := uint64(sumSize) - sourceBigFileSize - 8 - 8 - 8
@@ -86,6 +75,10 @@ var splitCmd = &cobra.Command{
 		log.Warnf("hiddenFileSize: %d", hiddenFileSize)
 		outputData := make([]byte, uint64(hiddenFileSize))
 		fp.Read(outputData)
+
+		if password != "" {
+			outputData = encrypt_tool.Decrypt(outputData, algorithmName, password)
+		}
 
 		log.Debugf("will write to %s", outputFile)
 		binary_utils.WriteBinaryFile(outputFile, outputData)
@@ -101,6 +94,5 @@ func init() {
 
 	splitCmd.Flags().StringP("file", "f", "", "filename")
 	splitCmd.Flags().StringP("output", "o", "", "filename")
-	splitCmd.Flags().StringP("encryption", "e", "none", "aes-128")
 	splitCmd.Flags().StringP("password", "p", "", "password")
 }

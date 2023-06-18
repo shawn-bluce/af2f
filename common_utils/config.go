@@ -12,8 +12,8 @@ func GetAlgorithmMap() map[string]int {
 	return map[string]int{
 		"none":    0,
 		"aes-128": 1,
-		"aes-256": 2,
-		"aes-512": 3,
+		"aes-192": 2,
+		"aes-256": 3,
 	}
 }
 

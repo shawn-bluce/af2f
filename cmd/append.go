@@ -3,6 +3,7 @@ package cmd
 import (
 	"af2f/binary_utils"
 	"af2f/common_utils"
+	"af2f/encrypt_tool"
 	"encoding/binary"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
@@ -56,6 +57,11 @@ var appendCmd = &cobra.Command{
 		_, bigfileSize := binary_utils.ReadBinaryFile(bigFile)
 
 		appendData, _ := binary_utils.ReadBinaryFile(appendFile)
+
+		if password != "" {
+			appendData = encrypt_tool.Encrypt(appendData, encryptionAlgorithm, password)
+		}
+
 		log.Infof("append: %s, file-size: %d", appendFile, len(appendData))
 		binary_utils.AppendBinaryFile(bigFile, appendData) // append file
 
@@ -91,6 +97,6 @@ func init() {
 
 	appendCmd.Flags().StringP("file", "f", "", "filename")
 	appendCmd.Flags().StringP("append", "a", "", "filename")
-	appendCmd.Flags().StringP("encryption", "e", "none", "aes-128")
+	appendCmd.Flags().StringP("encryption", "e", "aes-128", "aes-128/aes-192/aes-256")
 	appendCmd.Flags().StringP("password", "p", "", "password")
 }
