@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func validateAppendArgs(file string, append string, password string) bool {
+func validateAppendArgs(file string, append string, password string, algorithm string) bool {
 	validated := true
 	if fileNotExists(file) {
 		log.Errorf("-f file: %s is not exists", file)
@@ -24,6 +24,18 @@ func validateAppendArgs(file string, append string, password string) bool {
 		validated = false
 	}
 
+	algorithmNameFound := false
+	for name, _ := range common_utils.GetAlgorithmMap() {
+		if algorithm == name {
+			algorithmNameFound = true
+			break
+		}
+	}
+	if !algorithmNameFound {
+		log.Errorf("algorithm name: %s are not supported", algorithm)
+		validated = false
+	}
+
 	return validated
 }
 
@@ -34,8 +46,9 @@ var appendCmd = &cobra.Command{
 
 		bigFile, _ := cmd.Flags().GetString("file")
 		appendFile, _ := cmd.Flags().GetString("append")
+		encryptionAlgorithm, _ := cmd.Flags().GetString("encryption")
 		password, _ := cmd.Flags().GetString("password")
-		if !validateAppendArgs(bigFile, appendFile, password) {
+		if !validateAppendArgs(bigFile, appendFile, password, encryptionAlgorithm) {
 			log.Errorf("Do not pass the params validate")
 			os.Exit(1)
 		}
@@ -47,7 +60,10 @@ var appendCmd = &cobra.Command{
 		binary_utils.AppendBinaryFile(bigFile, appendData) // append file
 
 		// encryption algorithm
-		algorithmId := common_utils.GetAlgorithmIdByName()
+		find, algorithmId := common_utils.GetAlgorithmIdByName(encryptionAlgorithm)
+		if !find {
+			os.Exit(1)
+		}
 		algorithmByteArray := make([]byte, 8)
 		binary.LittleEndian.PutUint64(algorithmByteArray, uint64(algorithmId))
 		log.Infof("append: encryption algorithm, 8bytes")
@@ -75,5 +91,6 @@ func init() {
 
 	appendCmd.Flags().StringP("file", "f", "", "filename")
 	appendCmd.Flags().StringP("append", "a", "", "filename")
+	appendCmd.Flags().StringP("encryption", "e", "none", "aes-128")
 	appendCmd.Flags().StringP("password", "p", "", "password")
 }

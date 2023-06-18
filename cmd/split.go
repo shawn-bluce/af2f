@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"af2f/binary_utils"
+	"af2f/common_utils"
 	"encoding/binary"
 	"github.com/charmbracelet/log"
 	"io"
@@ -10,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func validateSplitArgs(file string, output string, password string) bool {
+func validateSplitArgs(file string, output string, password string, algorithm string) bool {
 	validated := true
 	if fileNotExists(file) {
 		log.Errorf("-f file: %s is not exists", file)
@@ -25,6 +26,18 @@ func validateSplitArgs(file string, output string, password string) bool {
 		validated = false
 	}
 
+	algorithmIdFound := false
+	for _, id := range common_utils.GetAlgorithmMap() {
+		if algorithm == string(rune(id)) {
+			algorithmIdFound = true
+			break
+		}
+	}
+	if !algorithmIdFound {
+		log.Errorf("algorithm id: %s are not support", algorithm)
+		validated = false
+	}
+
 	return validated
 }
 
@@ -34,8 +47,9 @@ var splitCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		bigFile, _ := cmd.Flags().GetString("file")
 		outputFile, _ := cmd.Flags().GetString("output")
+		encryption, _ := cmd.Flags().GetString("encryption")
 		password, _ := cmd.Flags().GetString("password")
-		if !validateSplitArgs(bigFile, outputFile, password) {
+		if !validateSplitArgs(bigFile, outputFile, password, encryption) {
 			log.Errorf("Do not pass the params validate")
 			os.Exit(1)
 		}
@@ -87,5 +101,6 @@ func init() {
 
 	splitCmd.Flags().StringP("file", "f", "", "filename")
 	splitCmd.Flags().StringP("output", "o", "", "filename")
+	splitCmd.Flags().StringP("encryption", "e", "none", "aes-128")
 	splitCmd.Flags().StringP("password", "p", "", "password")
 }

@@ -1,52 +1,52 @@
 package common_utils
 
-import "github.com/charmbracelet/log"
+import (
+	"github.com/charmbracelet/log"
+)
 
 type Manifest struct {
-	Version             int
-	EncryptionAlgorithm int
+	Version int
 }
 
-var manifest Manifest
-var algorithmMap = make(map[string]int, 16)
-
-func getAlgorithmMap() map[string]int {
-	algorithmMap["none"] = 0
-	algorithmMap["aes-128"] = 1
-	algorithmMap["aes-256"] = 2
-	algorithmMap["aes-512"] = 3
-	return algorithmMap
+func GetAlgorithmMap() map[string]int {
+	return map[string]int{
+		"none":    0,
+		"aes-128": 1,
+		"aes-256": 2,
+		"aes-512": 3,
+	}
 }
 
-func GetAlgorithmIdByName() int {
-	// this version only support aes-128
-	return getAlgorithmMap()["aes-128"]
-}
-
-func GetAlgorithmNameById() string {
-	// this version only support aes-128
-	algorithm := 1
-	for name, id := range getAlgorithmMap() {
-		if algorithm == id {
-			return name
+func GetAlgorithmIdByName(algorithmName string) (bool, int) {
+	find := false
+	for name, id := range GetAlgorithmMap() {
+		if algorithmName == name {
+			find = true
+			log.Infof("find the algorithm id %d by name %s", id, name)
+			break
 		}
 	}
-	return "NOT_FOUND"
-}
-
-func initManifest() {
-	if (manifest == Manifest{}) {
-		manifest = Manifest{
-			Version:             111,
-			EncryptionAlgorithm: 222,
-		}
-		log.Debugf("init manifest: success...")
+	if find {
+		return true, GetAlgorithmMap()["aes-128"]
 	} else {
-		log.Debugf("init manifest: pass...")
+		log.Errorf("Not found algorithm name: %s", algorithmName)
+		return false, -1
 	}
+}
+
+func GetAlgorithmNameById(algorithmId int) (bool, string) {
+	for name, id := range GetAlgorithmMap() {
+		if algorithmId == id {
+			log.Infof("find the algorithm %s by id %d", name, algorithmId)
+			return true, name
+		}
+	}
+	log.Errorf("Not found algorithm id: %d", algorithmId)
+	return false, "NOT_FOUND"
 }
 
 func GetManifest() Manifest {
-	initManifest()
-	return manifest
+	return Manifest{
+		Version: 1,
+	}
 }
