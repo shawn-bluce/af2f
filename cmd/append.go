@@ -44,9 +44,9 @@ var appendCmd = &cobra.Command{
 
 		bigFile, _ := cmd.Flags().GetString("file")
 		appendFile, _ := cmd.Flags().GetString("append")
-		encryptionAlgorithm, _ := cmd.Flags().GetString("encryption")
+		algorithm, _ := cmd.Flags().GetString("algorithm")
 		password, _ := cmd.Flags().GetString("password")
-		if !validateAppendArgs(bigFile, appendFile, password, encryptionAlgorithm) {
+		if !validateAppendArgs(bigFile, appendFile, password, algorithm) {
 			log.Errorf("DO NOT PASS THE PARAMS VALIDATE")
 			os.Exit(1)
 		}
@@ -56,7 +56,10 @@ var appendCmd = &cobra.Command{
 		appendData, _ := binary_utils.ReadBinaryFile(appendFile)
 
 		if password != "" {
-			appendData = encrypt_tool.AESEncrypt(appendData, encryptionAlgorithm, password)
+			log.Debugf("encrypting with %s by %s", algorithm, password)
+			appendData = encrypt_tool.AESEncrypt(appendData, algorithm, password)
+		} else {
+			log.Debugf("password is blank, do not encrypt")
 		}
 
 		log.Infof("append: %s, file-size: %d", appendFile, len(appendData))
@@ -68,14 +71,14 @@ var appendCmd = &cobra.Command{
 		log.Infof("append: bigfileSize, 8bytes, value is %d", bigfileSize)
 		binary_utils.AppendBinaryFile(bigFile, bigfileSizeByteArray) // append offset value
 
-		// append encryption algorithm
-		find, algorithmId := common_utils.GetAlgorithmIdByName(encryptionAlgorithm)
+		// append algorithm
+		find, algorithmId := common_utils.GetAlgorithmIdByName(algorithm)
 		if !find {
 			os.Exit(1)
 		}
 		algorithmByteArray := make([]byte, 8)
 		binary.LittleEndian.PutUint64(algorithmByteArray, uint64(algorithmId))
-		log.Infof("append: encryption algorithm, 8bytes")
+		log.Infof("append: algorithm, 8bytes")
 		binary_utils.AppendBinaryFile(bigFile, algorithmByteArray) // append offset value
 	},
 }
@@ -87,6 +90,6 @@ func init() {
 
 	appendCmd.Flags().StringP("file", "f", "", "filename")
 	appendCmd.Flags().StringP("append", "a", "", "filename")
-	appendCmd.Flags().StringP("encryption", "e", "aes-128", "aes-128/aes-192/aes-256")
+	appendCmd.Flags().StringP("algorithm", "e", "aes-128", "aes-128/aes-192/aes-256")
 	appendCmd.Flags().StringP("password", "p", "", "password")
 }

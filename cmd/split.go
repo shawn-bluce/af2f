@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func validateSplitArgs(file string, output string, password string) bool {
+func validateSplitArgs(file string, output string) bool {
 	validated := true
 	if fileNotExists(file) {
 		log.Errorf("-f file: %s is not exists", file)
@@ -33,7 +33,7 @@ var splitCmd = &cobra.Command{
 		bigFile, _ := cmd.Flags().GetString("file")
 		outputFile, _ := cmd.Flags().GetString("output")
 		password, _ := cmd.Flags().GetString("password")
-		if !validateSplitArgs(bigFile, outputFile, password) {
+		if !validateSplitArgs(bigFile, outputFile) {
 			log.Errorf("DO NOT PASS THE PARAMS VALIDATE")
 			os.Exit(1)
 		}
@@ -48,7 +48,7 @@ var splitCmd = &cobra.Command{
 		buffer := make([]byte, 8)
 		fp.Read(buffer)
 		algorithmId := binary.LittleEndian.Uint64(buffer)
-		_, algorithmName := common_utils.GetAlgorithmNameById(int(algorithmId))
+		_, algorithm := common_utils.GetAlgorithmNameById(int(algorithmId))
 		log.Debugf("read algorithmId=%d from %s", bigFile, algorithmId)
 
 		// read sourceBigFileSize
@@ -66,7 +66,10 @@ var splitCmd = &cobra.Command{
 		fp.Read(outputData)
 
 		if password != "" {
-			outputData = encrypt_tool.AESDecrypt(outputData, algorithmName, password)
+			log.Debugf("decrypting with %s by %s", algorithm, password)
+			outputData = encrypt_tool.AESDecrypt(outputData, algorithm, password)
+		} else {
+			log.Debug("decrypting without password")
 		}
 
 		log.Debugf("will write to %s", outputFile)
