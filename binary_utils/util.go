@@ -22,8 +22,7 @@ func AppendBinaryFile(filename string, data []byte) {
 	defer fp.Close()
 
 	fp.Seek(0, io.SeekEnd)
-	res, _ := fp.Write(data)
-	log.Warnf("final file size: %d", res)
+	fp.Write(data)
 }
 
 func WriteBinaryFile(filename string, data []byte) {

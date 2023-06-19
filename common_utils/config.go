@@ -4,10 +4,6 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-type Manifest struct {
-	Version int
-}
-
 func GetAlgorithmMap() map[string]int {
 	return map[string]int{
 		"none":    0,
@@ -43,10 +39,4 @@ func GetAlgorithmNameById(algorithmId int) (bool, string) {
 	}
 	log.Errorf("Not found algorithm id: %d", algorithmId)
 	return false, "NOT_FOUND"
-}
-
-func GetManifest() Manifest {
-	return Manifest{
-		Version: 1,
-	}
 }

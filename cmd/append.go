@@ -59,11 +59,17 @@ var appendCmd = &cobra.Command{
 		appendData, _ := binary_utils.ReadBinaryFile(appendFile)
 
 		if password != "" {
-			appendData = encrypt_tool.Encrypt(appendData, encryptionAlgorithm, password)
+			appendData = encrypt_tool.AESEncrypt(appendData, encryptionAlgorithm, password)
 		}
 
 		log.Infof("append: %s, file-size: %d", appendFile, len(appendData))
 		binary_utils.AppendBinaryFile(bigFile, appendData) // append file
+
+		// offset
+		bigfileSizeByteArray := make([]byte, 8)
+		binary.LittleEndian.PutUint64(bigfileSizeByteArray, uint64(bigfileSize))
+		log.Infof("append: bigfileSize, 8bytes, value is %d", bigfileSize)
+		binary_utils.AppendBinaryFile(bigFile, bigfileSizeByteArray) // append offset value
 
 		// encryption algorithm
 		find, algorithmId := common_utils.GetAlgorithmIdByName(encryptionAlgorithm)
@@ -74,19 +80,6 @@ var appendCmd = &cobra.Command{
 		binary.LittleEndian.PutUint64(algorithmByteArray, uint64(algorithmId))
 		log.Infof("append: encryption algorithm, 8bytes")
 		binary_utils.AppendBinaryFile(bigFile, algorithmByteArray) // append offset value
-
-		// offset
-		bigfileSizeByteArray := make([]byte, 8)
-		binary.LittleEndian.PutUint64(bigfileSizeByteArray, uint64(bigfileSize))
-		log.Infof("append: bigfileSize, 8bytes, value is %d", bigfileSize)
-		binary_utils.AppendBinaryFile(bigFile, bigfileSizeByteArray) // append offset value
-
-		// version
-		version := common_utils.GetManifest().Version
-		versionByteArray := make([]byte, 8)
-		binary.LittleEndian.PutUint64(versionByteArray, uint64(version))
-		log.Infof("append: version, 8bytes, value is %d", version)
-		binary_utils.AppendBinaryFile(bigFile, versionByteArray) // append version
 	},
 }
 

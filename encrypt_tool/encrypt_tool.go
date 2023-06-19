@@ -1,11 +1,24 @@
 package encrypt_tool
 
 import (
+	"bytes"
 	"crypto/aes"
+	"crypto/cipher"
 	"crypto/md5"
 	"fmt"
-	"github.com/charmbracelet/log"
 )
+
+func pkcs7Padding(origData []byte, blockSize int) []byte {
+	padding := blockSize - len(origData)%blockSize
+	paddingData := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(origData, paddingData...)
+}
+
+func pkcs7UnPadding(origData []byte) []byte {
+	length := len(origData)
+	paddingLength := int(origData[length-1])
+	return origData[:length-paddingLength]
+}
 
 func getPasswordHash(algorithm string, password string) string {
 	passwordByBytes := []byte(password)
@@ -24,35 +37,26 @@ func getPasswordHash(algorithm string, password string) string {
 	}
 }
 
-func Encrypt(data []byte, algorithm string, password string) []byte {
-	passwordByHash := getPasswordHash(algorithm, password)
-	cipher, err := aes.NewCipher([]byte(passwordByHash))
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
+func AESEncrypt(clearText []byte, algorithm string, password string) []byte {
+	passwordWithByte := []byte(getPasswordHash(algorithm, password))
 
-	plaintext := []byte(data)
-	ciphertext := make([]byte, len(plaintext))
-	cipher.Encrypt(ciphertext, plaintext)
-	log.Infof("Encrypted by password %s -> %s", password, passwordByHash)
-	log.Infof("plaintext first 32bytes: %x", plaintext[:32])
-	log.Infof("ciphertext first 32bytes: %x", ciphertext[:32])
-	return ciphertext
+	block, _ := aes.NewCipher(passwordWithByte)
+	clearText = pkcs7Padding(clearText, block.BlockSize())
+	blockMode := cipher.NewCBCEncrypter(block, passwordWithByte[:block.BlockSize()])
+	cipherText := make([]byte, len(clearText))
+	blockMode.CryptBlocks(cipherText, clearText)
+
+	return cipherText
 }
 
-func Decrypt(data []byte, algorithm string, password string) []byte {
-	passwordByHash := getPasswordHash(algorithm, password)
-	cipher, err := aes.NewCipher([]byte(passwordByHash))
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	plaintext := []byte(data)
-	ciphertext := make([]byte, len(plaintext))
-	cipher.Decrypt(ciphertext, plaintext)
-	log.Infof("Decrypted by password %s -> %s", password, passwordByHash)
-	log.Infof("ciphertext first 32bytes: %x", ciphertext[:32])
-	log.Infof("plaintext first 32bytes: %x", plaintext[:32])
-	return plaintext
+func AESDecrypt(cipherText []byte, algorithm string, password string) []byte {
+	passwordWithByte := []byte(getPasswordHash(algorithm, password))
+
+	block, _ := aes.NewCipher(passwordWithByte)
+	blockSize := block.BlockSize()
+	blockMode := cipher.NewCBCDecrypter(block, passwordWithByte[:blockSize])
+	clearText := make([]byte, len(cipherText))
+	blockMode.CryptBlocks(clearText, cipherText)
+	clearText = pkcs7UnPadding(clearText)
+	return clearText
 }
