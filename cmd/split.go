@@ -22,10 +22,6 @@ func validateSplitArgs(file string, output string, password string) bool {
 		log.Errorf("-o file: %s is already exists", output)
 		validated = false
 	}
-	if len(password) > 32 {
-		log.Errorf("password lens must less than 32")
-		validated = false
-	}
 
 	return validated
 }
@@ -38,7 +34,7 @@ var splitCmd = &cobra.Command{
 		outputFile, _ := cmd.Flags().GetString("output")
 		password, _ := cmd.Flags().GetString("password")
 		if !validateSplitArgs(bigFile, outputFile, password) {
-			log.Errorf("Do not pass the params validate")
+			log.Errorf("DO NOT PASS THE PARAMS VALIDATE")
 			os.Exit(1)
 		}
 
@@ -53,14 +49,14 @@ var splitCmd = &cobra.Command{
 		fp.Read(buffer)
 		algorithmId := binary.LittleEndian.Uint64(buffer)
 		_, algorithmName := common_utils.GetAlgorithmNameById(int(algorithmId))
-		log.Debugf("read algorithmId is: %d", algorithmId)
+		log.Debugf("read algorithmId=%d from %s", bigFile, algorithmId)
 
 		// read sourceBigFileSize
 		fp.Seek(-16, io.SeekEnd)
 		buffer = make([]byte, 8)
 		fp.Read(buffer)
 		sourceBigFileSize := binary.LittleEndian.Uint64(buffer)
-		log.Debugf("read sourceBigFileSize is: %d", sourceBigFileSize)
+		log.Debugf("read hidden file length = %d from %s", sourceBigFileSize, bigFile)
 
 		hiddenFileSize := uint64(sumSize) - sourceBigFileSize - 8 - 8
 

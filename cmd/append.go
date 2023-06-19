@@ -20,20 +20,17 @@ func validateAppendArgs(file string, append string, password string, algorithm s
 		log.Errorf("-a file: %s is not exists", append)
 		validated = false
 	}
-	if len(password) > 32 {
+	if len(password) < 6 {
+		log.Errorf("password lens must more than 6")
+		validated = false
+	} else if len(password) > 32 {
 		log.Errorf("password lens must less than 32")
 		validated = false
 	}
 
-	algorithmNameFound := false
-	for name, _ := range common_utils.GetAlgorithmMap() {
-		if algorithm == name {
-			algorithmNameFound = true
-			break
-		}
-	}
+	algorithmNameFound, _ := common_utils.GetAlgorithmIdByName(algorithm)
 	if !algorithmNameFound {
-		log.Errorf("algorithm name: %s are not supported", algorithm)
+		log.Errorf("algorithm: %s are NOT SUPPORTED", algorithm)
 		validated = false
 	}
 
@@ -50,7 +47,7 @@ var appendCmd = &cobra.Command{
 		encryptionAlgorithm, _ := cmd.Flags().GetString("encryption")
 		password, _ := cmd.Flags().GetString("password")
 		if !validateAppendArgs(bigFile, appendFile, password, encryptionAlgorithm) {
-			log.Errorf("Do not pass the params validate")
+			log.Errorf("DO NOT PASS THE PARAMS VALIDATE")
 			os.Exit(1)
 		}
 
@@ -65,13 +62,13 @@ var appendCmd = &cobra.Command{
 		log.Infof("append: %s, file-size: %d", appendFile, len(appendData))
 		binary_utils.AppendBinaryFile(bigFile, appendData) // append file
 
-		// offset
+		// append offset value
 		bigfileSizeByteArray := make([]byte, 8)
 		binary.LittleEndian.PutUint64(bigfileSizeByteArray, uint64(bigfileSize))
 		log.Infof("append: bigfileSize, 8bytes, value is %d", bigfileSize)
 		binary_utils.AppendBinaryFile(bigFile, bigfileSizeByteArray) // append offset value
 
-		// encryption algorithm
+		// append encryption algorithm
 		find, algorithmId := common_utils.GetAlgorithmIdByName(encryptionAlgorithm)
 		if !find {
 			os.Exit(1)

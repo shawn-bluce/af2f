@@ -14,20 +14,13 @@ func GetAlgorithmMap() map[string]int {
 }
 
 func GetAlgorithmIdByName(algorithmName string) (bool, int) {
-	find := false
 	for name, id := range GetAlgorithmMap() {
 		if algorithmName == name {
-			find = true
-			log.Infof("find the algorithm id %d by name %s", id, name)
-			break
+			log.Debugf("find the algorithm id %d by name %s", id, name)
+			return true, id
 		}
 	}
-	if find {
-		return true, GetAlgorithmMap()["aes-128"]
-	} else {
-		log.Errorf("Not found algorithm name: %s", algorithmName)
-		return false, -1
-	}
+	return false, -1
 }
 
 func GetAlgorithmNameById(algorithmId int) (bool, string) {
@@ -37,6 +30,5 @@ func GetAlgorithmNameById(algorithmId int) (bool, string) {
 			return true, name
 		}
 	}
-	log.Errorf("Not found algorithm id: %d", algorithmId)
 	return false, "NOT_FOUND"
 }
