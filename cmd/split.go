@@ -49,7 +49,7 @@ var splitCmd = &cobra.Command{
 		fp.Read(buffer)
 		algorithmId := binary.LittleEndian.Uint64(buffer)
 		_, algorithm := common_utils.GetAlgorithmNameById(int(algorithmId))
-		log.Debugf("read algorithmId=%d from %s", bigFile, algorithmId)
+		log.Debugf("read algorithmId=%s from %d", bigFile, algorithmId)
 
 		// read sourceBigFileSize
 		fp.Seek(-16, io.SeekEnd)

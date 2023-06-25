@@ -12,7 +12,7 @@ func ReadBinaryFile(filename string) ([]byte, int) {
 	content, _ := ioutil.ReadFile(filename)
 
 	fileSizeWithMb := float64(len(content)) / 1024.0 / 1024.0
-	log.Debugf("Reading file: %s length is %.2fM -> %d %d bytes", filename, fileSizeWithMb, len(content))
+	log.Debugf("Reading file: %s length is %.2fM -> %d bytes", filename, fileSizeWithMb, len(content))
 
 	return content, len(content)
 }
