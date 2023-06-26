@@ -16,16 +16,12 @@ func TestAESEncryptAndDecrypt(t *testing.T) {
 		decryptedData := AESDecrypt(encryptedData, algorithm, password)
 		if bytes.Equal(cleanData, decryptedData) == false {
 			t.Errorf("same algorithm and password, but decrypt failed")
-		} else {
-			t.Logf("encrypt/decrypt with %s by %s success", algorithm, password)
 		}
 	}
 }
 
 func TestPasswordHash(t *testing.T) {
-	if getPasswordHash("aes-233", "xx") == "NOT_FOUND" {
-		t.Logf("have no aes-233 algorithm")
-	} else {
+	if getPasswordHash("aes-233", "xx") != "NOT_FOUND" {
 		t.Errorf("don't should find algorithm aes-233")
 	}
 }
