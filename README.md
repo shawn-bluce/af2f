@@ -1,6 +1,6 @@
 # af2f
 
-![](https://github.com/shawn-bluce/af2f/actions/workflows/go.yml/badge.svg)
+![](https://github.com/shawn-bluce/af2f/actions/workflows/go.yml/badge.svg?event=release)
 ![](https://github.com/shawn-bluce/af2f/actions/workflows/go_test.yml/badge.svg)
 
 You have too many reason to hidden a file. Use this tool you can append file A to file B, then open B looks like source B, file A is hiddened. And you can split file A from appended file B.
