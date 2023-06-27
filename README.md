@@ -1,4 +1,8 @@
 # af2f
+
+![](https://github.com/shawn-bluce/af2f/actions/workflows/go.yml/badge.svg)
+![](https://github.com/shawn-bluce/af2f/actions/workflows/go_test.yml/badge.svg)
+
 You have too many reason to hidden a file. Use this tool you can append file A to file B, then open B looks like source B, file A is hiddened. And you can split file A from appended file B.
 
 你有很多种理由想将一个文件隐藏起来。你可以用这个工具将文件 A 追加到文件 B 后面，打开文件 B 查看的时候与追加前保持一致，并且你可以将文件 A 从文件 B 中分离出来。
