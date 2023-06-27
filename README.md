@@ -15,6 +15,7 @@ Forexample you append a.jpg to b.mp4, then open the b.mp4, it can still play nor
 - `af2f append -f avatar_2_4k_hdr.mp4 -a xxx.jpg -p YOUR_PASSWORD`
 - `af2f append -f avatar_2_4k_hdr.mp4 -a xxx.jpg -p YOUR_PASSWORD -e aes-192`
 - `af2f split -f avatar_2_4k_hdr.mp4 -o fff.jpg -p YOUR_PASSWORD`
+- `af2f restore -f avatar_2_4k_hdr.mp4`
 
 
 # data struct
