@@ -51,3 +51,20 @@ func TestValidateAppendArgs(t *testing.T) {
 	os.Remove(filenameA)
 	os.Remove(filenameB)
 }
+
+func TestDoAppend(t *testing.T) {
+	filenameA := "filenameA"
+	filenameB := "filenameB"
+
+	if fileNotExists(filenameA) {
+		os.Create(filenameA)
+	}
+	if fileNotExists(filenameB) {
+		os.Create(filenameB)
+	}
+
+	doAppend(filenameA, filenameB, "aes-128", "1223456")
+	doAppend(filenameA, filenameB, "aes-192", "1223456")
+	doAppend(filenameA, filenameB, "aes-256", "1223456")
+	doAppend(filenameA, filenameB, "aes-256", "")
+}

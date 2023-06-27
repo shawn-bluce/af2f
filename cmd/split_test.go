@@ -36,6 +36,10 @@ func TestValidateSplitArgs(t *testing.T) {
 		t.Errorf("filenameB is exists")
 	}
 
+	doAppend(filenameA, filenameB, "aes-128", "123456")
+	os.Remove(filenameB)
+	doSplit(filenameA, filenameB, "123456")
+
 	os.Remove(filenameA)
 	os.Remove(filenameB)
 }

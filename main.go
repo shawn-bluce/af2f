@@ -11,9 +11,13 @@ import (
 
 func main() {
 	debug := os.Getenv("AF2F_DEBUG") == "1"
+	quiet := os.Getenv("AF2F_QUIET") == "1"
 	if debug {
 		log.SetLevel(log.DebugLevel)
 		log.Infof("OS ENV AF2F_DEBUG=1, set logLevel=debug")
+	}
+	if quiet {
+		log.SetLevel(log.FatalLevel)
 	}
 	log.Debugf("Pre cmd.Execute()")
 	cmd.Execute()
